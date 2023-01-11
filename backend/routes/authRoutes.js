@@ -70,4 +70,41 @@ router.post("/register", async (req, res) => {
   }
 });
 
+// Login
+router.post("/login", async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // checa se o usuário existe
+  const user = await User.findOne({ email: email });
+
+  if (!user)
+    return res
+      .status(400)
+      .json({ error: "O e-mail informado não está cadastrado!" });
+
+  // Checa a senha
+  const checkPassword = await bcrypt.compare(password, user.password);
+
+  if (!checkPassword)
+    return res.status(400).json({ error: "A senha não está correta." });
+
+  // criar token
+  const token = jwt.sign(
+    // payload
+    {
+      name: user.name,
+      id: user._id,
+    },
+    "nossosecret"
+  );
+  // return token
+  res.json({
+    error: null,
+    msg: "Você está autenticado!",
+    token: token,
+    userId: user._id,
+  });
+});
+
 module.exports = router;
