@@ -5,7 +5,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 // routes
-
+const authRouter = require("./routes/authRoutes")
 // middlewares
 
 // config
@@ -18,6 +18,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // rotas no express
+app.use("/api/auth", authRouter)
 
 // conexao mongoDB
 mongoose.set("strictQuery", false)
