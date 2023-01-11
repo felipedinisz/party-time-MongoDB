@@ -39,6 +39,35 @@ router.post("/register", async (req, res) => {
   const passwordHash = await bcrypt.hash(password, salt);
 
   console.log(passwordHash);
+
+  const user = new User({
+    name: name,
+    email: email,
+    password: passwordHash,
+  });
+
+  try {
+    const newUser = await user.save();
+
+    // criar token
+    const token = jwt.sign(
+      // payload
+      {
+        name: newUser.name,
+        id: newUser._id,
+      },
+      "nossosecret"
+    );
+    // return token
+    res.json({
+      error: null,
+      msg: "Você realizou o cadastro com sucesso",
+      token: token,
+      userId: newUser._id,
+    });
+  } catch (err) {
+    res.status(400).json({ err });
+  }
 });
 
 module.exports = router;
