@@ -7,6 +7,7 @@ const cors = require("cors");
 // routes
 const authRouter = require("./routes/authRoutes");
 const userRouter = require("./routes/userRoutes");
+const partyRouter = require("./routes/partyRoutes");
 // middlewares
 
 // config
@@ -21,6 +22,7 @@ app.use(express.static("public"));
 // rotas no express
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/party", partyRouter);
 // conexao mongoDB
 mongoose.set("strictQuery", false);
 mongoose.connect(`mongodb://127.0.0.1/${dbName}`, {
