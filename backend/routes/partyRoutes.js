@@ -22,13 +22,13 @@ router.post(
   async (req, res) => {
     const title = req.body.title;
     const description = req.body.description;
-    const partyDate = req.body.party_date;
+    const partyDate = req.body.partyDate;
 
     let files = [];
 
     if (req.files) files = req.files.photos;
 
-    if (title == null || description == null || partyDate == null)
+    if (title == "null" || description == "null" || partyDate == "null")
       return res
         .status(400)
         .json({ error: "Preencha pelo menos nome, descrição e data." });
@@ -41,7 +41,7 @@ router.post(
     try {
       const user = await User.findOne({ _id: userId });
 
-      // cria o array de fotoscom o caminho de imagem
+      // cria o array de fotos com o caminho de imagem
       let photos = [];
 
       if (files && files.length > 0) {
@@ -66,10 +66,10 @@ router.post(
           msg: "Evento criado com sucesso",
           data: newParty,
         });
-      } catch (err) {
+      } catch (error) {
         return res.status(400).json({ error });
       }
-    } catch (err) {
+    } catch (error) {
       return res.status(400).json({ error: "Acesso negado." });
     }
   }
@@ -80,7 +80,7 @@ router.get("/all", async (req, res) => {
   try {
     const parties = await Party.find({ privacy: false }).sort([["_id", -1]]);
     res.json({ error: null, parties: parties });
-  } catch (err) {
+  } catch (error) {
     return res.status(400).json({ error });
   }
 });
@@ -94,7 +94,7 @@ router.get("/userparties", verifyToken, async (req, res) => {
 
     const parties = await Party.find({ userId: userId });
     res.json({ error: null, parties: parties });
-  } catch (err) {
+  } catch (error) {
     return res.status(400).json({ error });
   }
 });
@@ -109,7 +109,7 @@ router.get("/userparty/:id", verifyToken, async (req, res) => {
     const party = await Party.findOne({ _id: partyId, userId: userId });
 
     res.json({ error: null, party: party });
-  } catch (err) {
+  } catch (error) {
     return res.status(400).json({ error });
   }
 });
@@ -126,15 +126,92 @@ router.get("/:id", async (req, res) => {
       const token = req.header("auth-token");
       const user = await getUserByToken(token);
       const userId = user._id.toString();
-      const userPartyId = party.userId.toString();
+      const partyUserId = party.userId.toString();
 
       //checa se a festa é do usuário
-      if (userId == userPartyId) res.json({ error: null, party: party });
+      if (userId == partyUserId) res.json({ error: null, party: party });
     }
-
-  } catch (err) {
+  } catch (error) {
     return res.status(400).json({ error: "Este evento não existe!" });
   }
 });
 
-module.exports = router;
+// deleta festas
+router.delete("/", verifyToken, async (req, res) => {
+  const token = req.header("auth-token");
+  const user = await getUserByToken(token);
+  const partyId = req.body.id;
+  const userId = user._id.toString();
+
+  try {
+    await Party.deleteOne({ _id: partyId, userId: userId });
+    res.json({ error: null, msg: "Evento removido com sucesso!" });
+  } catch (error) {
+    res.status(400).json({ error: "Acesso negado!" });
+  }
+});
+
+// Atualiza uma festa
+router.put(
+  "/",
+  verifyToken,
+  upload.fields([{ name: "photos" }]),
+  async (req, res) => {
+    //req body
+    const title = req.body.title;
+    const description = req.body.description;
+    const partyDate = req.body.partyDate;
+    const partyId = req.body.id;
+    const partyUserId = req.body.user_id;
+
+    let files = [];
+
+    if (req.files) files = req.files.photos;
+
+    if (title == "null" || description == "null" || partyDate == "null")
+      return res
+        .status(400)
+        .json({ error: "Preencha pelo menos nome, descrição e data." });
+
+    const token = req.header("auth-token");
+    const user = await getUserByToken(token);
+    const userId = user._id.toString();
+
+    if (userId !== partyUserId)
+      res.status(400).json({ error: "Acesso negado!" });
+
+    //Criar objeto da festa
+    const party = {
+      id: partyId,
+      title: title,
+      description: description,
+      partyDate: partyDate,
+      privacy: req.body.privacy,
+      userId: userId,
+    };
+
+    let photos = [];
+
+    if (files && files.length > 0) {
+      files.forEach((photo, i) => {
+        photos[i] = photo.path;
+      });
+
+      party.photos = photos;
+    }
+
+    try {
+      // retorna festa atualizada
+      const updatedParty = await Party.findOneAndUpdate(
+        { _id: partyId, userId: userId },
+        { $set: party },
+        { new: true }
+      );
+
+      res.json({ error: null, msg: "evento atualizado com sucesso!", data: updatedParty})
+    } catch (error) {
+      res.status(400).json({ error });
+    }
+  }
+),
+  (module.exports = router);
