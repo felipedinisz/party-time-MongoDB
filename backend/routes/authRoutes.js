@@ -1,8 +1,9 @@
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 const User = require("../models/user");
+
+
 
 // Registrar um usuário
 router.post("/register", async (req, res) => {
@@ -24,9 +25,8 @@ router.post("/register", async (req, res) => {
   }
 
   // Checa se as senhas conferem
-  if (password !== confirmpassword) {
-    return res.status(400).json({ error: "As senhas precisam ser iguais!" });
-  }
+  if (password !== confirmpassword) return res.status(400).json({ error: "As senhas precisam ser iguais!" });
+
 
   // Checa se o usuário existe
   const emailExists = await User.findOne({ email: email });

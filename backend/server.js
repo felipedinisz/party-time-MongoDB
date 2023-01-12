@@ -5,7 +5,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 
 // routes
-const authRouter = require("./routes/authRoutes")
+const authRouter = require("./routes/authRoutes");
+const userRouter = require("./routes/userRoutes");
 // middlewares
 
 // config
@@ -18,18 +19,16 @@ app.use(express.json());
 app.use(express.static("public"));
 
 // rotas no express
-app.use("/api/auth", authRouter)
-
+app.use("/api/auth", authRouter);
+app.use("/api/user", userRouter);
 // conexao mongoDB
-mongoose.set("strictQuery", false)
+mongoose.set("strictQuery", false);
 mongoose.connect(`mongodb://127.0.0.1/${dbName}`, {
   useNewURLParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
-app.get("/", (req, res) => {
-  res.json({ message: "Rota teste!" });
-});
+
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
