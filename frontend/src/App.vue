@@ -39,4 +39,8 @@ a {
 a:hover {
   color: #c1b696;
 }
+
+input:focus {
+  outline: 1px solid #ccc;
+}
 </style>

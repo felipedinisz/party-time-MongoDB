@@ -1,13 +1,18 @@
 <template>
   <div class="register">
     <h1>Criar uma conta</h1>
-    <p>formulário</p>
+    <UserForm :user="[]" page="register" btnText="Cadastrar" />
   </div>
 </template>
 
 <script>
+import UserForm from "../components/UserForm.vue";
+
 export default {
   name: "Register",
+  components: {
+    UserForm,
+  },
 };
 </script>
 
