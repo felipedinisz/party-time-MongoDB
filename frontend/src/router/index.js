@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "../views/HomeView.vue";
-import store from "../store/index"
+import store from "../store/index";
 
 const routes = [
   {
@@ -9,17 +9,16 @@ const routes = [
     component: Home,
     meta: {
       requiresAuth: false,
-    }
+    },
   },
   {
     path: "/about",
     name: "about",
 
-    component: () =>
-      import("../views/AboutView.vue"),
-      meta: {
-        requiresAuth: false,
-      }
+    component: () => import("../views/AboutView.vue"),
+    meta: {
+      requiresAuth: false,
+    },
   },
   {
     path: "/register",
@@ -27,7 +26,7 @@ const routes = [
     component: () => import("../views/Register"),
     meta: {
       requiresAuth: false,
-    }
+    },
   },
   {
     path: "/profile",
@@ -35,15 +34,23 @@ const routes = [
     component: () => import("../views/Profile"),
     meta: {
       requiresAuth: true,
-    }
+    },
   },
   {
     path: "/dashboard",
     name: "Dashboard",
-    component: () => import("../views/Dashboard"),
+    component: () => import("../views/Dashboard.vue"),
     meta: {
       requiresAuth: true,
-    }
+    },
+  },
+  {
+    path: "/login",
+    name: "Login",
+    component: () => import("../views/Login.vue"),
+    meta: {
+      requiresAuth: true,
+    },
   },
 ];
 
@@ -54,14 +61,14 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   if (to.matched.some((record) => record.meta.requiresAuth)) {
-
-    if(store.getters.authenticated === false) {
+    if (store.getters.authenticated === false) {
       next({
         path: "/login",
-        params: {nextURl: to.fullPath}
-      })
+        params: { nextUrl: to.fullPath },
+      });
+    } else {
+      next();
     }
-
   } else {
     next();
   }

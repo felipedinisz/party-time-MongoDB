@@ -104,23 +104,26 @@ export default {
           if (data.error) {
             this.msg = data.error;
             this.msgClass = "error";
-            return;
+          } else {
+            auth = true;
+            this.msg = data.msg;
+            this.msgClass = "success";
+            console.log(auth);
+            // Emit event for auth an user
+            this.$store.commit("authenticate", {
+              token: data.token,
+              userId: data.userId,
+            });
           }
 
-          auth = true;
-
-          this.msg = data.msg;
-          this.msgClass = "success";
-
-          // emitir evento para autenticar usuário
-
           setTimeout(() => {
-            if(!auth) {
-              this.msg = null
+            const self = this;
+            if (!auth) {
+              this.msg = null;
             } else {
-              this.$router.push('dashboard')
+              self.$router.push("/dashboard");
             }
-          }, 2000)
+          }, 2000);
         })
         .catch((err) => {
           console.error(err);
