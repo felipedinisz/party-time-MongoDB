@@ -43,4 +43,8 @@ a:hover {
 input:focus {
   outline: 1px solid #ccc;
 }
+
+textarea:focus {
+  outline: 1px solid #ccc;
+}
 </style>
