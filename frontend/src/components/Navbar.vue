@@ -27,9 +27,9 @@ export default {
   methods: {
     logout(e) {
       e.preventDefault();
-      // Emit event to logout user
+      // Emite evento para deslogar usuário
       this.$store.commit("logout");
-      // redirect
+      // redireciona
       this.$router.push("/");
     }
   },

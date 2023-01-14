@@ -1,15 +1,63 @@
 <template>
   <div class="profile">
-    <h1>Você está autenticado!</h1>
+    <h1>Edite seu perfil</h1>
+    <UserForm
+      page="profile"
+      :user="user"
+      btnText="Editar"
+      :key="componentKey"
+    />
   </div>
 </template>
 
 <script>
-export default {
+import UserForm from "../components/UserForm.vue";
 
-}
+export default {
+  components: {
+    UserForm,
+  },
+  data() {
+    return {
+      user: {},
+      componentKey: 0,
+    };
+  },
+  created() {
+    // Carrega usuário
+    this.getUser();
+  },
+  methods: {
+    async getUser() {
+      const id = this.$store.getters.userId;
+      const token = this.$store.getters.token;
+
+      await fetch(`http://localhost:3000/api/user/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          "auth-token": token,
+        },
+      })
+      .then((resp) => resp.json())
+      .then((data) => {
+        this.user = data.user;
+        this.componentKey += 1;
+      })
+      .catch((err) => console.log(err));
+    },
+  },
+};
 </script>
 
 <style scoped>
+.profile {
+  text-align: center;
+  padding-top: 40px;
+  padding-bottom: 100px;
+}
 
+.profile h1 {
+  margin-bottom: 40px;
+}
 </style>

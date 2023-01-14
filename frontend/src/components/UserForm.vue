@@ -5,69 +5,66 @@
       id="user-form"
       @submit="page === 'register' ? register($event) : update($event)"
     >
+      <input type="hidden" id="id" name="id" v-model="id" />
       <div class="input-container">
         <label for="name">Nome:</label>
-        <!--eslint-disable-next-line prettier/prettier-->
         <input
           type="text"
-          name="name"
           id="name"
+          name="name"
           v-model="name"
-          placeholder="Digite seu nome"
-          autocomplete="off"
+          placeholder="Digite o seu nome"
         />
       </div>
       <div class="input-container">
-        <label for="email">E-mail:</label>
-        <!--eslint-disable-next-line prettier/prettier-->
+        <label for="email">Email:</label>
         <input
-          type="text"
-          name="email"
+          type="email"
           id="email"
+          name="email"
           v-model="email"
-          placeholder="Digite seu e-mail"
-          autocomplete="off"
+          placeholder="Digite o seu e-mail"
         />
       </div>
       <div class="input-container">
         <label for="password">Senha:</label>
-        <!--eslint-disable-next-line prettier/prettier-->
         <input
           type="password"
-          name="password"
           id="password"
+          name="password"
           v-model="password"
           placeholder="Digite sua senha"
-          autocomplete="off"
         />
       </div>
       <div class="input-container">
-        <label for="confirmpassword">Confirmar senha:</label>
-        <!--eslint-disable-next-line prettier/prettier-->
+        <label for="confirmpassword">Confirmação:</label>
         <input
           type="password"
-          name="confirmpassword"
           id="confirmpassword"
+          name="confirmpassword"
           v-model="confirmpassword"
-          placeholder="Digite sua senha"
-          autocomplete="off"
+          placeholder="Confirme sua senha"
         />
       </div>
-      <inputSubmit :text="btnText" />
+      <InputSubmit :text="btnText" />
     </form>
   </div>
 </template>
 
 <script>
-import inputSubmit from "./Form/inputSubmit.vue";
-import Message from "./Message.vue";
-
+import InputSubmit from "./Form/inputSubmit.vue";
+import Message from "./Message";
 export default {
   name: "RegisterForm",
+  components: {
+    InputSubmit,
+    Message,
+  },
   data() {
     return {
-      name: null,
-      email: null,
+      id: this.user._id || null,
+      name: this.user.name || null,
+      email: this.user.email || null,
       password: null,
       confirmpassword: null,
       msg: null,
@@ -75,24 +72,17 @@ export default {
     };
   },
   props: ["user", "page", "btnText"],
-  components: {
-    inputSubmit,
-    Message,
-  },
   methods: {
     async register(e) {
       e.preventDefault();
-
       const data = {
         name: this.name,
         email: this.email,
         password: this.password,
         confirmpassword: this.confirmpassword,
       };
-
       const jsonData = JSON.stringify(data);
-
-      await fetch("http://127.0.0.1:3000/api/auth/register", {
+      await fetch("http://localhost:3000/api/auth/register", {
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: jsonData,
@@ -100,7 +90,6 @@ export default {
         .then((resp) => resp.json())
         .then((data) => {
           let auth = false;
-
           if (data.error) {
             this.msg = data.error;
             this.msgClass = "error";
@@ -108,8 +97,7 @@ export default {
             auth = true;
             this.msg = data.msg;
             this.msgClass = "success";
-            console.log(auth);
-            // Emit event for auth an user
+            // Emite evento para autenticar
             this.$store.commit("authenticate", {
               token: data.token,
               userId: data.userId,
@@ -117,17 +105,55 @@ export default {
           }
 
           setTimeout(() => {
-            const self = this;
+            const self = this
             if (!auth) {
               this.msg = null;
             } else {
-              self.$router.push("/dashboard");
+              // redireciona
+              self.$router.push("dashboard");
             }
           }, 2000);
         })
         .catch((err) => {
-          console.error(err);
+          console.log(err);
         });
+    },
+    async update(e) {
+      e.preventDefault();
+      const data = {
+        id: this.id,
+        name: this.name,
+        email: this.email,
+        password: this.password,
+        confirmpassword: this.confirmpassword,
+      };
+      const jsonData = JSON.stringify(data);
+      // pega token
+      const token = this.$store.getters.token;
+      await fetch("http://localhost:3000/api/user", {
+        method: "PATCH",
+        headers: {
+          "Content-type": "application/json",
+          "auth-token": token,
+        },
+        body: jsonData,
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (data.error) {
+            this.msg = data.error;
+            this.msgClass = "error";
+          } else {
+            this.msg = data.msg;
+            this.msgClass = "success";
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      setTimeout(() => {
+        this.msg = null;
+      }, 2000);
     },
   },
 };
@@ -140,21 +166,18 @@ export default {
   display: flex;
   flex-direction: column;
 }
-
 .input-container {
   display: flex;
   flex-direction: column;
   margin-bottom: 15px;
   text-align: left;
 }
-
 .input-container label {
   margin-bottom: 10px;
   color: #555;
 }
-
 .input-container input {
   padding: 10px;
-  border: 1px solid #e2e1e1;
+  border: 1px solid #e8e8e8;
 }
 </style>

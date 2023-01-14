@@ -22,50 +22,58 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 // Atualizar um usuário
-router.put("/", verifyToken, async (req, res) => {
+router.patch("/", verifyToken, async (req, res) => {
   const token = req.header("auth-token");
   const user = await getUserByToken(token);
   const userReqId = req.body.id;
   const password = req.body.password;
-  const confirmpassword = req.body.confirmpassword;
+  const confirmPassword = req.body.confirmpassword;
 
   const userId = user._id.toString();
 
-  // Checa se o id de usuário é igual ao id do token
-  if (userId != userReqId) res.status(401).json({ error: "Acesso negado!" });
+  // check if user id is equal token user id
+  if (userId != userReqId) {
+    res.status(401).json({ error: "Acesso negado!" });
+  }
 
-  // cria um objeto de usuario
+  // creating user object
   const updateData = {
     name: req.body.name,
     email: req.body.email,
   };
 
-  // Checa se as senhas batem
-  if (password !== confirmpassword)
-    return res.status(400).json({ error: "As senhas precisam ser iguais!" });
+  // check if password match
+  if (password != confirmPassword) {
+    res.status(401).json({ error: "As senhas não conferem." });
 
-  if (password == confirmpassword && password != null) {
+    // change password
+  } else if (password == confirmPassword && password != null) {
+    // creating password
     const salt = await bcrypt.genSalt(12);
-    let reqPassword = req.body.password;
+    const reqPassword = req.body.password;
+
     const passwordHash = await bcrypt.hash(reqPassword, salt);
-    reqPassword = passwordHash;
+
+    req.body.password = passwordHash;
+
     // updating data
     updateData.password = passwordHash;
   }
 
   try {
-    const updateUser = await User.findOneAndUpdate(
+    // returns updated data
+    const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
       { $set: updateData },
       { new: true }
     );
     res.json({
       error: null,
-      msg: "Usuário atualizado com sucesso",
-      data: updateUser,
+      msg: "Usuário atualizado com sucesso!",
+      data: updatedUser,
     });
-  } catch (err) {
-    res.status(400).json({ err });
+  } catch (error) {
+    res.status(400).json({ error });
   }
 });
 
