@@ -10,12 +10,12 @@
       <div class="data-row" v-for="(party, index) in parties" :key="index">
         <div class="data-id-container">{{ index + 1 }}</div>
         <div class="data-title-container">
-          <Router-link :to="`/party/${party_id}`">{{
+          <Router-link :to="`/party/${party._id}`">{{
             party.title
           }}</Router-link>
         </div>
         <div class="data-actions-container">
-          <router-link :to="`/editparty/${party_id}`" class="edit-btn"
+          <router-link :to="`/editparty/${party._id}`" class="edit-btn"
             >Editar</router-link
           >
           <button class="remove-btn" @click="remove(party._id)">Remover</button>

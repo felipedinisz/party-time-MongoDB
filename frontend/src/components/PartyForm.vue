@@ -155,7 +155,7 @@ export default {
       // get token from state
       const token = this.$store.getters.token;
       await fetch("http://localhost:3000/api/party", {
-        method: "PUT",
+        method: "PATCH",
         headers: {
           "auth-token": token,
         },
@@ -170,13 +170,15 @@ export default {
             this.msg = data.msg;
             this.msgClass = "success";
           }
+
+          setTimeout(() => {
+            this.msg = null;
+          }, 2000);
+          
         })
         .catch((err) => {
           console.log(err);
         });
-      setTimeout(() => {
-        this.msg = null;
-      }, 2000);
     },
   },
 };

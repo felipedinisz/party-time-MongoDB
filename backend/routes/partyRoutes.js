@@ -118,7 +118,7 @@ router.get("/userparty/:id", verifyToken, async function (req, res) {
 
     const party = await Party.findOne({ _id: partyId, userId: userId });
 
-    console.log(party);
+
 
     res.json({ error: null, party: party });
   } catch (error) {
@@ -130,7 +130,7 @@ router.get("/userparty/:id", verifyToken, async function (req, res) {
 router.get("/:id", async (req, res) => {
   // find party
   const id = req.params.id;
-  console.log(id)
+
 
   const party = await Party.findOne({ _id: id });
 
@@ -176,7 +176,7 @@ router.delete("/", verifyToken, async (req, res) => {
 });
 
 // update party
-router.put(
+router.patch(
   "/",
   verifyToken,
   upload.fields([{ name: "photos" }]),

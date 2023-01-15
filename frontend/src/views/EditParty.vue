@@ -12,7 +12,7 @@
 
 <script>
 import PartyForm from "../components/PartyForm.vue";
-import { useRoute, useRouter } from "vue-router";
+
 
 export default {
   components: {
@@ -25,14 +25,11 @@ export default {
     };
   },
   created() {
-    // load party
     this.getParty();
   },
   methods: {
     async getParty() {
       const id = this.$route.params.id;
-      console.log(this.$route);
-      console.log(id);
       const token = this.$store.getters.token;
       await fetch(`http://localhost:3000/api/party/${id}`, {
         method: "GET",
@@ -44,7 +41,6 @@ export default {
         .then((resp) => resp.json())
         .then((data) => {
           this.party = data.party;
-          console.log(this.party);
           this.party.partyDate = this.party.partyDate.substring(0, 10);
           this.party.photos.forEach((photo, index) => {
             this.party.photos[index] = photo.replace(
