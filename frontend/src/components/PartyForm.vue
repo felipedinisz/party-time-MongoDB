@@ -2,62 +2,64 @@
   <div>
     <Message :msg="msg" :msgClass="msgClass" />
     <form
+      id="register-form"
       enctype="multipart/form-data"
-      id="party-form"
       @submit="page === 'newparty' ? createParty($event) : update($event)"
     >
       <input type="hidden" id="id" name="id" v-model="id" />
       <input type="hidden" id="user_id" name="user_id" v-model="user_id" />
       <div class="input-container">
-        <label for="title">Título do evento:</label>
+        <label for="title">Título do Evento:</label>
         <input
           type="text"
-          name="title"
           id="title"
+          name="title"
           v-model="title"
           placeholder="Digite o título"
         />
       </div>
       <div class="input-container">
-        <label for="description">Título do evento:</label>
+        <label for="description">Descrição:</label>
         <textarea
-          name="description"
           id="description"
+          name="description"
           v-model="description"
-          placeholder="Como foi o evento?"
+          placeholder="O que vai acontecer ou o que já aconteceu?"
         ></textarea>
-        <div class="input-container">
-          <label for="partyDate">Data do evento:</label>
-          <input
-            type="date"
-            name="partyDate"
-            id="partyDate"
-            v-model="partyDate"
-          />
-        </div>
-        <div class="input-container">
-          <label for="photos" id="label_photos">Imagens</label>
-          <input
-            type="file"
-            name="photos"
-            id="photos"
-            multiple="multiple"
-            ref="file"
-            @change="onChange($event)"
-          />
-        </div>
-        <div v-if="page === 'editparty' && showMiniImages" class="mini-images">
-          <p>Imagens atuais:</p>
-          <img
-            v-for="(photo, index) in photos"
-            :src="`${photo}`"
-            :key="index"
-          />
-        </div>
-        <div class="checkbox-container">
-          <label for="privacy">Evento privado?</label>
-          <input type="checkbox" name="privacy" id="privacy" />
-        </div>
+      </div>
+      <div class="input-container">
+        <label for="party_date">Data da Festa:</label>
+        <input
+          type="date"
+          id="party_date"
+          name="party_date"
+          v-model="party_date"
+        />
+      </div>
+      <div class="input-container">
+        <label for="photos">Imagens:</label>
+        <input
+          type="file"
+          multiple="multiple"
+          id="photos"
+          name="photos"
+          ref="file"
+          @change="onChange"
+        />
+      </div>
+      <div v-if="page === 'editparty' && showMiniImages" class="mini-images">
+        <p>Imagens atuais:</p>
+        <img v-for="(photo, index) in photos" :src="`${photo}`" :key="index" />
+      </div>
+      <div class="input-container checkbox-container">
+        <label for="privacy">Evento privado</label>
+        <input
+          type="checkbox"
+          multiple
+          id="privacy"
+          name="privacy"
+          v-model="privacy"
+        />
       </div>
       <InputSubmit :text="btnText" />
     </form>
@@ -65,19 +67,21 @@
 </template>
 
 <script>
-import Message from "./Message.vue";
-import InputSubmit from "./Form/inputSubmit.vue";
-
+import InputSubmit from "./Form/inputSubmit";
+import Message from "./Message";
 export default {
-  name: "PartyForm",
-  props: ["party", "page", "btnText"],
+  name: "RegisterForm",
+  components: {
+    InputSubmit,
+    Message,
+  },
   data() {
     return {
       id: this.party._id || null,
       title: this.party.title || null,
       description: this.party.description || null,
-      partyDate: this.party.partyDate || null,
-      photos: this.party.photos || null,
+      party_date: this.party.partyDate || null,
+      photos: this.party.photos || [],
       privacy: this.party.privacy || false,
       user_id: this.party.userId || null,
       msg: null,
@@ -85,13 +89,50 @@ export default {
       showMiniImages: true,
     };
   },
-  components: {
-    Message,
-    InputSubmit,
-  },
+  props: ["party", "page", "btnText"],
   methods: {
     async createParty(e) {
       e.preventDefault();
+      const formData = new FormData();
+      formData.append("title", this.title);
+      formData.append("description", this.description);
+      formData.append("party_date", this.party_date);
+      formData.append("privacy", this.privacy);
+      if (this.photos.length > 0) {
+        for (const i of Object.keys(this.photos)) {
+          formData.append("photos", this.photos[i]);
+        }
+      }
+      // get token from state
+      const token = this.$store.getters.token;
+      await fetch("http://localhost:3000/api/party", {
+        method: "POST",
+        headers: {
+          "auth-token": token,
+        },
+        body: formData,
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (data.error) {
+            this.msg = data.error;
+            this.msgClass = "error";
+          } else {
+            this.msg = data.msg;
+            this.msgClass = "success";
+          }
+
+          setTimeout(() => {
+            this.msg = null;
+            // redirect
+            if (!data.error) {
+              this.$router.push("dashboard");
+            }
+          }, 2000);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     },
     onChange(e) {
       this.photos = e.target.files;
@@ -99,13 +140,50 @@ export default {
     },
     async update(e) {
       e.preventDefault();
+      const formData = new FormData();
+      formData.append("id", this.id);
+      formData.append("title", this.title);
+      formData.append("description", this.description);
+      formData.append("partyDate", this.party_date);
+      formData.append("privacy", this.privacy);
+      formData.append("user_id", this.user_id);
+      if (this.photos.length > 0) {
+        for (const i of Object.keys(this.photos)) {
+          formData.append("photos", this.photos[i]);
+        }
+      }
+      // get token from state
+      const token = this.$store.getters.token;
+      await fetch("http://localhost:3000/api/party", {
+        method: "PUT",
+        headers: {
+          "auth-token": token,
+        },
+        body: formData,
+      })
+        .then((resp) => resp.json())
+        .then((data) => {
+          if (data.error) {
+            this.msg = data.error;
+            this.msgClass = "error";
+          } else {
+            this.msg = data.msg;
+            this.msgClass = "success";
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      setTimeout(() => {
+        this.msg = null;
+      }, 2000);
     },
   },
 };
 </script>
 
 <style scoped>
-#party-form {
+#register-form {
   max-width: 400px;
   margin: 0 auto;
   display: flex;
@@ -121,46 +199,14 @@ export default {
   margin-bottom: 10px;
   color: #555;
 }
-
-#label_photos {
-  width: 200px;
-  text-transform: uppercase;
-  color: #fff;
-  background: #25282e;
-  border: 0;
-  border-radius: 5px;
-  font-size: 0.9rem;
-  padding: 12px;
-  cursor: pointer;
-  margin-top: 10px;
-  text-align: center;
-  transition: 0.5s;
-}
-
-#label_photos:hover {
-  background-color: #141619;
-}
-
-input[type="file"] {
-  display: none;
-}
-
 .input-container input,
 .input-container textarea {
   padding: 10px;
   border: 1px solid #e8e8e8;
 }
-
-.input-container textarea {
-  max-width: 400px;
-  min-width: 400px;
-  min-height: 70px;
-  margin-bottom: 10px;
-}
 .checkbox-container {
   flex-direction: row;
 }
-
 .checkbox-container input[type="checkbox"] {
   margin-left: 12px;
   margin-top: 3px;
@@ -181,6 +227,4 @@ input[type="file"] {
   margin-right: 15px;
   margin-bottom: 15px;
 }
-
-
 </style>
