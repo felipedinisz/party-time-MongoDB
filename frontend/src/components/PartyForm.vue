@@ -2,7 +2,7 @@
   <div>
     <Message :msg="msg" :msgClass="msgClass" />
     <form
-      id="register-form"
+      id="party-form"
       enctype="multipart/form-data"
       @submit="page === 'newparty' ? createParty($event) : update($event)"
     >
@@ -37,7 +37,7 @@
         />
       </div>
       <div class="input-container">
-        <label for="photos">Imagens:</label>
+        <label for="photos">Selecionar imagens</label>
         <input
           type="file"
           multiple="multiple"
@@ -98,7 +98,7 @@ export default {
       formData.append("description", this.description);
       formData.append("party_date", this.party_date);
       formData.append("privacy", this.privacy);
-      
+
       if (this.photos.length > 0) {
         for (const i of Object.keys(this.photos)) {
           formData.append("photos", this.photos[i]);
@@ -183,7 +183,7 @@ export default {
 </script>
 
 <style scoped>
-#register-form {
+#party-form {
   max-width: 400px;
   margin: 0 auto;
   display: flex;
@@ -204,13 +204,20 @@ export default {
   padding: 10px;
   border: 1px solid #e8e8e8;
 }
+
+textarea {
+  min-width: 400px;
+  max-width: 400px;
+}
 .checkbox-container {
+  align-items: center;
   flex-direction: row;
 }
 .checkbox-container input[type="checkbox"] {
   margin-left: 12px;
-  margin-top: 3px;
+  margin-top: -10px;
 }
+
 .mini-images {
   display: flex;
   flex-wrap: wrap;
@@ -226,5 +233,27 @@ export default {
   height: 50px;
   margin-right: 15px;
   margin-bottom: 15px;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+label[for="photos"] {
+  width: 200px;
+  text-transform: capitalize;
+  color: #fff;
+  text-align: center;
+  background: #3c6ccc;
+  border: 0;
+  border-radius: 5px;
+  padding: 12px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.5s;
+}
+
+label[for="photos"]:hover {
+  background: #4174da;
 }
 </style>

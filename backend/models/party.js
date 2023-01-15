@@ -3,23 +3,23 @@ const mongoose = require("mongoose");
 const PartySchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
+    required: true
   },
   description: {
-    type: String,
+    type: String
   },
   partyDate: {
-    type: Date,
+    type: Date
   },
   photos: {
-    type: Array,
+    type: Array
   },
   privacy: {
-    type: Boolean,
+    type: Boolean
   },
   userId: {
-    type: mongoose.ObjectId,
-  },
+    type: mongoose.ObjectId
+  }
 });
 
 const Party = mongoose.model("Party", PartySchema);

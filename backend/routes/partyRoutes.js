@@ -116,9 +116,11 @@ router.get("/userparty/:id", verifyToken, async function (req, res) {
     const userId = user._id.toString();
     const partyId = req.params.id;
 
-    const party = await Party.findOne({ _id: partyId, userId });
+    const party = await Party.findOne({ _id: partyId, userId: userId });
 
-    res.json({ error: null, party });
+    console.log(party);
+
+    res.json({ error: null, party: party });
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -128,6 +130,7 @@ router.get("/userparty/:id", verifyToken, async function (req, res) {
 router.get("/:id", async (req, res) => {
   // find party
   const id = req.params.id;
+  console.log(id)
 
   const party = await Party.findOne({ _id: id });
 
@@ -137,7 +140,7 @@ router.get("/:id", async (req, res) => {
 
   // public party
   if (party.privacy === false) {
-    res.json({ error: null, party });
+    res.json({ error: null, party: party });
 
     // private party
   } else {
@@ -150,7 +153,7 @@ router.get("/:id", async (req, res) => {
 
     // check if user can access event
     if (userId == partyUserId) {
-      res.json({ error: null, party });
+      res.json({ error: null, party: party });
     } else {
       res.status(401).json({ error: "Acesso negado!" });
     }

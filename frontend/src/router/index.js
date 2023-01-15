@@ -12,15 +12,6 @@ const routes = [
     },
   },
   {
-    path: "/about",
-    name: "about",
-
-    component: () => import("../views/AboutView.vue"),
-    meta: {
-      requiresAuth: false,
-    },
-  },
-  {
     path: "/register",
     name: "Register",
     component: () => import("../views/Register"),
@@ -56,6 +47,14 @@ const routes = [
     path: "/newparty",
     name: "NewParty",
     component: () => import("../views/NewParty.vue"),
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/editparty/:id",
+    name: "EditParty",
+    component: () => import("../views/EditParty.vue"),
     meta: {
       requiresAuth: true,
     },
