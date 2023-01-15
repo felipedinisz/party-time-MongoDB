@@ -7,10 +7,7 @@ const User = require("../models/user");
 
 // Registrar um usuário
 router.post("/register", async (req, res) => {
-  const name = req.body.name;
-  const email = req.body.email;
-  const password = req.body.password;
-  const confirmpassword = req.body.confirmpassword;
+  const { name, email, password, confirmpassword } = req.body;
 
   // Checa se os campos estão preenchidos
   if (
@@ -39,8 +36,8 @@ router.post("/register", async (req, res) => {
   const passwordHash = await bcrypt.hash(password, salt);
 
   const user = new User({
-    name: name,
-    email: email,
+     name,
+     email,
     password: passwordHash,
   });
 
@@ -60,7 +57,7 @@ router.post("/register", async (req, res) => {
     res.json({
       error: null,
       msg: "Você realizou o cadastro com sucesso",
-      token: token,
+      token,
       userId: newUser._id,
     });
   } catch (err) {
@@ -70,11 +67,10 @@ router.post("/register", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
-  const email = req.body.email;
-  const password = req.body.password;
+  const { email, password } = req.body;
 
   // checa se o usuário existe
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email });
 
   if (!user)
     return res
@@ -100,7 +96,7 @@ router.post("/login", async (req, res) => {
   res.json({
     error: null,
     msg: "Você está autenticado!",
-    token: token,
+    token,
     userId: user._id,
   });
 });

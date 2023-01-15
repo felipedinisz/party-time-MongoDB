@@ -21,7 +21,6 @@ router.post(
   verifyToken,
   upload.fields([{ name: "photos" }]),
   async (req, res) => {
-    // req data
     const { title, description, party_date: partyDate } = req.body;
 
     let files = [];
@@ -60,12 +59,12 @@ router.post(
     }
 
     const party = new Party({
-      title: title,
-      description: description,
-      partyDate: partyDate,
-      photos: photos,
+      title,
+      description,
+      partyDate,
+      photos,
       privacy: req.body.privacy,
-      userId: userId,
+      userId,
     });
 
     try {
@@ -100,8 +99,8 @@ router.get("/userparties", verifyToken, async function (req, res) {
 
     const userId = user._id.toString();
 
-    const parties = await Party.find({ userId: userId });
-    res.json({ error: null, parties: parties });
+    const parties = await Party.find({ userId });
+    res.json({ error: null, parties });
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -117,11 +116,9 @@ router.get("/userparty/:id", verifyToken, async function (req, res) {
     const userId = user._id.toString();
     const partyId = req.params.id;
 
-    const party = await Party.findOne({ _id: partyId, userId: userId });
+    const party = await Party.findOne({ _id: partyId, userId });
 
-    console.log(party);
-
-    res.json({ error: null, party: party });
+    res.json({ error: null, party });
   } catch (error) {
     res.status(400).json({ error });
   }
@@ -140,7 +137,7 @@ router.get("/:id", async (req, res) => {
 
   // public party
   if (party.privacy === false) {
-    res.json({ error: null, party: party });
+    res.json({ error: null, party });
 
     // private party
   } else {
@@ -153,7 +150,7 @@ router.get("/:id", async (req, res) => {
 
     // check if user can access event
     if (userId == partyUserId) {
-      res.json({ error: null, party: party });
+      res.json({ error: null, party });
     } else {
       res.status(401).json({ error: "Acesso negado!" });
     }
@@ -168,7 +165,7 @@ router.delete("/", verifyToken, async (req, res) => {
   const userId = user._id.toString();
 
   try {
-    await Party.deleteOne({ _id: partyId, userId: userId });
+    await Party.deleteOne({ _id: partyId, userId });
     res.json({ error: null, msg: "Evento removido com sucesso!" });
   } catch (error) {
     res.status(400).json({ error });
@@ -181,10 +178,14 @@ router.put(
   verifyToken,
   upload.fields([{ name: "photos" }]),
   async (req, res) => {
-
-
     // req data
-    const { title, description, partyDate, id: partyId, user_id: partyUserId } = req.body;
+    const {
+      title,
+      description,
+      partyDate,
+      id: partyId,
+      user_id: partyUserId,
+    } = req.body;
 
     let files = [];
 
@@ -215,9 +216,9 @@ router.put(
     // build party object
     const party = {
       id: partyId,
-      title: title,
-      description: description,
-      partyDate: partyDate,
+      title,
+      description,
+      partyDate,
       privacy: req.body.privacy,
       userId: partyUserId,
     };

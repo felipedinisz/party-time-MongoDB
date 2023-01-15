@@ -98,6 +98,7 @@ export default {
       formData.append("description", this.description);
       formData.append("party_date", this.party_date);
       formData.append("privacy", this.privacy);
+      
       if (this.photos.length > 0) {
         for (const i of Object.keys(this.photos)) {
           formData.append("photos", this.photos[i]);
@@ -124,10 +125,9 @@ export default {
 
           setTimeout(() => {
             this.msg = null;
+
             // redirect
-            if (!data.error) {
-              this.$router.push("dashboard");
-            }
+            if (!data.error) this.$router.push("dashboard");
           }, 2000);
         })
         .catch((err) => {

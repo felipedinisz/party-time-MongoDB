@@ -25,30 +25,28 @@ router.get("/:id", verifyToken, async (req, res) => {
 router.patch("/", verifyToken, async (req, res) => {
   const token = req.header("auth-token");
   const user = await getUserByToken(token);
-  const userReqId = req.body.id;
-  const password = req.body.password;
-  const confirmPassword = req.body.confirmpassword;
+
+  const { id: userReqId, password, confirmPassword} = req.body;
 
   const userId = user._id.toString();
 
   // check if user id is equal token user id
   if (userId != userReqId) {
-    res.status(401).json({ error: "Acesso negado!" });
+    return res.status(401).json({ error: "Acesso negado!" });
   }
 
-  // creating user object
+  // cria objeto de usuário
   const updateData = {
     name: req.body.name,
     email: req.body.email,
   };
 
-  // check if password match
-  if (password != confirmPassword) {
-    res.status(401).json({ error: "As senhas não conferem." });
 
-    // change password
+  if (password != confirmPassword) {
+    return res.status(401).json({ error: "As senhas não conferem." });
+    // troca senha
   } else if (password == confirmPassword && password != null) {
-    // creating password
+    // cria senha
     const salt = await bcrypt.genSalt(12);
     const reqPassword = req.body.password;
 
@@ -56,12 +54,12 @@ router.patch("/", verifyToken, async (req, res) => {
 
     req.body.password = passwordHash;
 
-    // updating data
+    // atualiza data
     updateData.password = passwordHash;
   }
 
   try {
-    // returns updated data
+    // retorna data atualizada
     const updatedUser = await User.findOneAndUpdate(
       { _id: userId },
       { $set: updateData },
@@ -73,7 +71,7 @@ router.patch("/", verifyToken, async (req, res) => {
       data: updatedUser,
     });
   } catch (error) {
-    res.status(400).json({ error });
+    return res.status(400).json({ error });
   }
 });
 
